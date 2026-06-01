@@ -30,15 +30,7 @@ python hyundai_crack.py update_package.zip
 python hyundai_crack.py update_package.zip --bat-only
 ```
 
-### Brute-force specific years:
-```cmd
-python hyundai_crack.py update_package.zip --brute --year 2025 2026
-```
 
-### Compute ZIP password from build.prop values:
-```cmd
-python hyundai_crack.py --password
-```
 
 ## How It Works
 
