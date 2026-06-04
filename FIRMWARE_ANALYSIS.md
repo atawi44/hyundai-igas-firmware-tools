@@ -165,6 +165,31 @@ The Mobis double-SHA512 zip password hashing generates the exact archive passwor
 
 ---
 
+## 🔍 Bootloader Subsystem Analysis (`lk.rom`)
+
+We performed static binary analysis on the primary bootloader stage (**`lk.rom`** / Little Kernel loader) to trace hardware boot triggers and flashing interfaces.
+
+### 1. Recovery Mode Hardware Triggers
+The bootloader contains diagnostic functions that evaluate physical hardware pin signals at boot:
+```text
+[DEBUG] U-Boot Recovery Button pushed .... 
+###### TCC GPIOF-26-27 (%d)-(%d)  #######
+reboot_mode = Recovery
+RECOVERY_MODE
+```
+* **Physical Pins**: The bootloader monitors SoC pins **`GPIO F 26`** and **`GPIO F 27`**.
+* **Key Mappings**: These pins are wired directly to physical buttons on the vehicle fascia. Depending on the specific Grandeur trim and console layout, they map to combinations such as `POWER + MAP` or `POWER + HOME`.
+
+### 2. Built-in FWDN Protocol Engine
+The bootloader binary includes a complete implementation of Telechips' **FWDN (Firmware Downloader)** session protocol for USB-level eMMC flashing:
+* **Session Functions**: Handles initialization commands, block writes, verification, and boot partition erasing:
+  * `===== FWDN Session Start! =====`
+  * `[FWDN.] Write Code Completed....`
+  * `fwdn_mmc_update_bootloader`
+* **Usage**: If FWDN mode is triggered at power-on (typically by pulling SoC boot-configuration/OM pins low or using a custom interface hook), the SoC initializes its USB OTG controller as a client device, waiting for a connection from the PC-based FWDN utility.
+
+---
+
 ## 🔏 Cryptographic OTA Signature (`otacerts.zip`)
 
 The package contains `daudio.x509.pem`, which holds the public key used by the Android bootloader/recovery to verify updates:
